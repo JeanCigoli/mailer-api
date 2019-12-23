@@ -1,40 +1,99 @@
 import fs from 'fs';
 import path from 'path';
-import { promisify } from 'util';
-
-const readdirAsync = promisify(fs.readdir);
-
-const pathGet = path.resolve(__dirname, '..', '..', 'views');
+import { apiResponse, apiErrorResponse } from '../utils/index';
+import sqlite from '../../config/database';
 
 
 class TemplateController {
+  async store(req, res) {
+    const { pageName } = req.body;
+    let data = {};
 
-    async store(req, res) {
+    sqlite.insert('tb_templates', { name: pageName, variables: 'nome, objeto' }, (id) => {
+      data = {
+        name: pageName,
+        location: `localhost:3000/templates/${pageName}`,
+        code: id,
+      };
+    });
 
-        const { pageName, nome, objeto } = req.body;
-        return res.render(pageName, { nome, objeto });
+    const response = apiResponse({
+      message: 'Arquivo cadastrado com sucesso',
+      data,
+    });
 
-    };
+    return res.json(response);
+  }
 
-    async index(req, res) {
-        const names = await readdirAsync(pathGet);
-        return res.json(names);
-    };
+  async show(req, res) {
+    const { id } = req.params;
+    let data = [];
 
-    async delete(req, res) {
+    sqlite.runAsync('SELECT * FROM tb_templates WHERE id = ? ', [id], (rows) => {
+      data = rows;
+      console.log(rows);
+    });
 
-        const { name } = req.params;
-        const fileName = path.join('src', 'views', name);
+    if (data.length === 0) {
+      const response = apiErrorResponse({
+        message: 'Template não encontrado',
+        errors: ['Não foi encontrado o arquivo'],
+      });
 
-        fs.unlink(fileName, (err) => {
-            if (err) throw err;
-            return res.json({
-                status: "success: archive deleted!"
-            })
+      return res.status(404).json(response);
+    }
+
+    const response = apiResponse({
+      message: 'Dados do seu template',
+      data,
+    });
+
+    return res.json(response);
+  }
+
+  async index(req, res) {
+    let data = [];
+    let response = '';
+
+    sqlite.runAsync('SELECT * FROM tb_templates', (rows) => {
+      data = rows;
+    });
+
+    if (data.length === 0) {
+      response = apiResponse({
+        message: 'Não possui templates cadastrados',
+      });
+    } else {
+      response = apiResponse({
+        message: 'Lista de templates cadastrados',
+        data,
+      });
+    }
+
+    return res.json(response);
+  }
+
+  async delete(req, res) {
+    const { name } = req.params;
+    const fileName = path.join('src', 'views', name);
+
+    fs.unlink(fileName, (err) => {
+      if (err) {
+        const response = apiErrorResponse({
+          message: 'Não foi encontrado o arquivo',
+          errors: ['Não foi encontrado o arquivo'],
         });
 
-    };
+        return res.status(404).json(response);
+      }
 
+      const response = apiResponse({
+        message: 'Arquivo deletado com sucesso',
+      });
+
+      return res.json(response);
+    });
+  }
 }
 
 export default new TemplateController();

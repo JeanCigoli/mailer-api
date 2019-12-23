@@ -1,12 +1,12 @@
 import multer from 'multer';
-import path from 'path'
+import path from 'path';
 
 const storage = multer.diskStorage({
-    destination: path.resolve(__dirname, '..', '..', 'views'),
-    filename: (req, file, callback) => {
-        callback(null, `${file.originalname}`);
-    }
-})
+  destination: path.resolve(__dirname, '..', '..', 'views'),
+  filename: (req, file, callback) => {
+    callback(null, `${file.originalname}`);
+  },
+});
 
 const upload = multer({ storage });
 
