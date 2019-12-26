@@ -1,11 +1,11 @@
 
 export function apiResponse({
-  success = true, message = '', data = [], errors = [],
+  success = true, message = '', payload = {}, errors = [],
 }) {
   return ({
     success,
     message,
-    data,
+    payload,
     errors,
   });
 }
@@ -18,3 +18,7 @@ export function apiErrorResponse({ message = '', errors = [] }) {
 
   return apiResponse({ success: false, message, errors: error });
 }
+
+export const isNumber = (number) => /^[0-9]+$/.test(number);
+
+export const nameValid = (string) => /[a-zA-Z0-9_]+.hbs/.test(string);

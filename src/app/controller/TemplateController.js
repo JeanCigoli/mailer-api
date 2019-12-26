@@ -1,72 +1,85 @@
 import fs from 'fs';
 import path from 'path';
-import { apiResponse, apiErrorResponse } from '../utils/index';
-import sqlite from '../../config/database';
+import { promisify } from 'util';
+import {
+  apiResponse, apiErrorResponse, isNumber, nameValid,
+} from '../utils/index';
+import TemplateDao from '../dao/TemplateDao';
 
+const asyncUnlink = promisify(fs.unlink);
 
 class TemplateController {
   async store(req, res) {
-    const { pageName } = req.body;
-    let data = {};
+    const { name, variables } = req.body;
+    let response = null;
 
-    sqlite.insert('tb_templates', { name: pageName, variables: 'nome, objeto' }, (id) => {
-      data = {
-        name: pageName,
-        location: `localhost:3000/templates/${pageName}`,
-        code: id,
-      };
+    if (nameValid(name)) {
+      const payload = await TemplateDao.insertTemplate({ name, variables });
+
+      response = apiResponse({
+        message: 'Arquivo cadastrado com sucesso',
+        payload,
+      });
+
+      return res.json(response);
+    }
+
+    response = apiErrorResponse({
+      message: 'Parâmetro enviado é inválido',
+      errors: ['Parâmetro enviado é inválido'],
     });
 
-    const response = apiResponse({
-      message: 'Arquivo cadastrado com sucesso',
-      data,
-    });
-
-    return res.json(response);
+    return res.status(404).json(response);
   }
 
   async show(req, res) {
     const { id } = req.params;
-    let data = [];
+    let response = null;
 
-    sqlite.runAsync('SELECT * FROM tb_templates WHERE id = ? ', [id], (rows) => {
-      data = rows;
-      console.log(rows);
-    });
+    if (!isNumber(id)) {
+      let payload = null;
 
-    if (data.length === 0) {
-      const response = apiErrorResponse({
-        message: 'Template não encontrado',
-        errors: ['Não foi encontrado o arquivo'],
+      payload = await TemplateDao.selectByIdTemplate(id);
+
+      if (payload.length === 0) {
+        response = apiErrorResponse({
+          message: 'Template não encontrado',
+          errors: ['Não foi encontrado o arquivo'],
+        });
+
+        return res.status(404).json(response);
+      }
+
+      response = apiResponse({
+        message: 'Dados do seu template',
+        payload,
       });
 
-      return res.status(404).json(response);
+      return res.json(response);
     }
 
-    const response = apiResponse({
-      message: 'Dados do seu template',
-      data,
+    response = apiErrorResponse({
+      message: 'Parâmetro enviado é inválido',
+      errors: ['Parâmetro enviado é inválido'],
     });
 
-    return res.json(response);
+    return res.status(404).json(response);
   }
 
   async index(req, res) {
-    let data = [];
+    let payload = [];
     let response = '';
 
-    sqlite.runAsync('SELECT * FROM tb_templates', (rows) => {
-      data = rows;
-    });
+    payload = await TemplateDao.selectAllTemplates();
 
-    if (data.length === 0) {
+    if (payload.length === 0) {
       response = apiResponse({
         message: 'Não possui templates cadastrados',
       });
     } else {
       response = apiResponse({
         message: 'Lista de templates cadastrados',
-        data,
+        payload,
       });
     }
 
@@ -76,23 +89,35 @@ class TemplateController {
   async delete(req, res) {
     const { name } = req.params;
     const fileName = path.join('src', 'views', name);
+    let response = null;
 
-    fs.unlink(fileName, (err) => {
-      if (err) {
-        const response = apiErrorResponse({
-          message: 'Não foi encontrado o arquivo',
-          errors: ['Não foi encontrado o arquivo'],
-        });
+    if (!nameValid(name)) {
+      response = apiErrorResponse({
+        message: 'Parâmetro enviado é inválido',
+        errors: ['Parâmetro enviado é inválido'],
+      });
 
-        return res.status(404).json(response);
-      }
+      return res.status(404).json(response);
+    }
 
-      const response = apiResponse({
+    await TemplateDao.deleteByTemplate(name);
+
+    try {
+      await asyncUnlink(fileName);
+
+      response = apiResponse({
         message: 'Arquivo deletado com sucesso',
       });
 
       return res.json(response);
-    });
+    } catch (error) {
+      response = apiErrorResponse({
+        message: 'Não foi encontrado o arquivo',
+        errors: ['Não foi encontrado o arquivo'],
+      });
+
+      return res.status(404).json(response);
+    }
   }
 }
 
