@@ -14,14 +14,25 @@ class TemplateController {
     let response = null;
 
     if (nameValid(name)) {
-      const payload = await TemplateDao.insertTemplate({ name, variables });
+      const templateExist = await TemplateDao.selectByNameTemplate(name);
 
-      response = apiResponse({
-        message: 'Arquivo cadastrado com sucesso',
-        payload,
+      if (templateExist) {
+        const payload = await TemplateDao.insertTemplate({ name, variables });
+
+        response = apiResponse({
+          message: 'Arquivo cadastrado com sucesso',
+          payload,
+        });
+
+        return res.json(response);
+      }
+
+      response = apiErrorResponse({
+        message: 'Template já se encontra cadastrado',
+        errors: ['Template já se encontra cadastrado'],
       });
 
-      return res.json(response);
+      return res.status(404).json(response);
     }
 
     response = apiErrorResponse({
@@ -36,12 +47,12 @@ class TemplateController {
     const { id } = req.params;
     let response = null;
 
-    if (!isNumber(id)) {
+    if (isNumber(id)) {
       let payload = null;
 
       payload = await TemplateDao.selectByIdTemplate(id);
 
-      if (payload.length === 0) {
+      if (!payload) {
         response = apiErrorResponse({
           message: 'Template não encontrado',
           errors: ['Não foi encontrado o arquivo'],
