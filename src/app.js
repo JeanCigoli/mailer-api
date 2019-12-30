@@ -1,6 +1,8 @@
 import express from 'express';
 import path from 'path';
+import bodyParse from 'body-parser';
 import routes from './routes';
+
 
 class App {
   constructor() {
@@ -11,8 +13,8 @@ class App {
   }
 
   middlewares() {
-    this.server.use(express.json());
-    this.server.use(express.urlencoded({ extended: true }));
+    this.server.use(bodyParse.json());
+    this.server.use(bodyParse.urlencoded({ extended: true }));
     this.server.set('views', path.join(__dirname, 'views'));
     this.server.set('view engine', 'hbs');
   }

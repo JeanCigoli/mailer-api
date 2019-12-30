@@ -1,18 +1,41 @@
 import { response } from 'express';
+import path from 'path';
 import Mail from '../../lib/Mail';
 import {
   apiResponse, apiErrorResponse,
 } from '../utils/index';
+import TemplateDao from '../dao/TemplateDao';
 
 class MailController {
   async send(req, res) {
     const { mail, template } = req.body;
 
-    let context = '';
+    const arrayVariables = [];
 
     template.variables.forEach((element) => {
-      context += `${element.key}: '${element.value}',`;
+      const { key, value } = element;
+      arrayVariables[key] = value;
     });
+
+    const attachments = [];
+
+    const re = /\s*,\s*/;
+
+    const images = await TemplateDao.selectImagesByNameTemplate(`${template.name}.hbs`);
+
+    const imagesName = images[0].images.split(re);
+
+    const pathImage = path.join('src', 'views', 'img', template.name);
+
+    imagesName.forEach((name) => {
+      attachments.push({
+        filename: name,
+        path: path.join(pathImage, name),
+        cid: name,
+      });
+    });
+
+    const context = { ...arrayVariables };
 
     try {
       const dataEmail = {
@@ -21,9 +44,8 @@ class MailController {
         subject: mail.subject,
         template: template.name,
         context,
+        attachments,
       };
-
-      console.log(dataEmail);
 
       await Mail.sendEmail(dataEmail);
 

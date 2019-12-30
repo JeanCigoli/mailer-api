@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
+import rimraf from 'rimraf';
 import {
-  apiResponse, apiErrorResponse, isNumber, nameValid,
+  apiResponse, apiErrorResponse, isNumber, nameValid, moveFiles,
 } from '../utils/index';
 import TemplateDao from '../dao/TemplateDao';
 
@@ -10,34 +11,56 @@ const asyncUnlink = promisify(fs.unlink);
 
 class TemplateController {
   async store(req, res) {
-    const { name, variables } = req.body;
+    const { name, variables, imagesName } = req.body;
     let response = null;
 
-    if (nameValid(name)) {
-      const templateExist = await TemplateDao.selectByNameTemplate(name);
+    const re = /\s*,\s*/;
 
-      if (templateExist) {
-        const payload = await TemplateDao.insertTemplate({ name, variables });
+    const namePage = name.split('.');
 
-        response = apiResponse({
-          message: 'Arquivo cadastrado com sucesso',
-          payload,
+    if (imagesName !== undefined) {
+      const images = imagesName.split(re);
+
+      const oldPath = path.join('src', 'views', 'img');
+
+      const moved = moveFiles(images, oldPath, path.join(oldPath, namePage[0]));
+
+      if (!moved) {
+        response = apiErrorResponse({
+          message: 'Erro no upload de imagem',
+          errors: ['Erro no upload de imagem'],
         });
 
-        return res.json(response);
+        return res.status(404).json(response);
       }
+    }
 
+
+    if (!nameValid(name)) {
       response = apiErrorResponse({
-        message: 'Template já se encontra cadastrado',
-        errors: ['Template já se encontra cadastrado'],
+        message: 'Parâmetro enviado é inválido',
+        errors: ['Parâmetro enviado é inválido'],
       });
 
       return res.status(404).json(response);
     }
 
+    const templateExist = await TemplateDao.selectByNameTemplate(name);
+
+    if (templateExist) {
+      const payload = await TemplateDao.insertTemplate({ name, variables, images: imagesName });
+
+      response = apiResponse({
+        message: 'Arquivo cadastrado com sucesso',
+        payload,
+      });
+
+      return res.json(response);
+    }
+
     response = apiErrorResponse({
-      message: 'Parâmetro enviado é inválido',
-      errors: ['Parâmetro enviado é inválido'],
+      message: 'Template já se encontra cadastrado',
+      errors: ['Template já se encontra cadastrado'],
     });
 
     return res.status(404).json(response);
@@ -99,7 +122,12 @@ class TemplateController {
 
   async delete(req, res) {
     const { name } = req.params;
-    const fileName = path.join('src', 'views', name);
+
+    const nameArray = name.split('.');
+
+    const fileName = path.join('src', 'views', 'layouts', name);
+    const imageName = path.join('src', 'views', 'img', nameArray[0]);
+
     let response = null;
 
     if (!nameValid(name)) {
@@ -111,10 +139,11 @@ class TemplateController {
       return res.status(404).json(response);
     }
 
-    await TemplateDao.deleteByTemplate(name);
-
     try {
+      await TemplateDao.deleteByTemplate(name);
       await asyncUnlink(fileName);
+
+      rimraf(imageName, () => { });
 
       response = apiResponse({
         message: 'Arquivo deletado com sucesso',
