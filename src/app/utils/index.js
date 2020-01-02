@@ -1,5 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import { promisify } from 'util';
+
+const asyncUnlink = promisify(fs.unlink);
 
 
 export function apiResponse({
@@ -34,11 +37,25 @@ export const moveFiles = (arrayFiles, oldPath, newPath) => {
   }
 
   arrayFiles.forEach((namePath) => {
-    fs.rename(path.join(oldPath, namePath), path.join(newPath, namePath), (err) => {
-      if (err) {
-        success = false;
+    if (fs.existsSync(path.join(newPath, namePath))) {
+      success = false;
+
+      try {
+        asyncUnlink(path.join(oldPath, namePath));
+      } catch (error) {
+        console.log(error);
       }
-    });
+    }
+
+    if (success) {
+      fs.rename(path.join(oldPath, namePath), path.join(newPath, namePath), (err) => {
+        if (err) {
+          success = false;
+        }
+      });
+
+      success = true;
+    }
   });
 
 

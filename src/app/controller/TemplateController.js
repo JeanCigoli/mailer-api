@@ -28,7 +28,7 @@ class TemplateController {
       if (!moved) {
         response = apiErrorResponse({
           message: 'Erro no upload de imagem',
-          errors: ['Erro no upload de imagem'],
+          errors: ['Erro no upload de imagem', 'Arquivos já se encontra cadastrado'],
         });
 
         return res.status(404).json(response);

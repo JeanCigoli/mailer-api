@@ -54,16 +54,16 @@ class TemplateDao {
     return data;
   }
 
-  async selectImagesByNameTemplate(name) {
+  selectImagesByNameTemplate(name) {
     let data;
 
-    await sqlite.runAsync('SELECT images FROM tb_templates WHERE name = ? ', [name], (row) => {
-      if (row.length === 0) {
-        data = false;
-      } else {
-        data = row;
-      }
-    });
+    const row = sqlite.run('SELECT images FROM tb_templates WHERE name = ? ', [name]);
+
+    if (row.length === 0) {
+      data = null;
+    } else {
+      data = row;
+    }
 
     return data;
   }

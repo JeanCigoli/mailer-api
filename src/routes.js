@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import TemplateController from './app/controller/TemplateController';
-import MailController from './app/controller/MailController';
+import MailController from './app/controller/MailController/index';
 import { upload } from './app/middleware/upload';
 
 const routes = new Router();
