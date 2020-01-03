@@ -19,7 +19,6 @@ class MailController {
         });
       });
 
-
       response = apiResponse({
         message: 'Enviado com sucesso!',
       });

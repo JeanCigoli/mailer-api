@@ -1,5 +1,6 @@
 import path from 'path';
 import TemplateDao from '../../dao/TemplateDao';
+import AttachmentsDao from '../../dao/AttachmentsDao';
 
 export const generateContextObject = (variables) => {
   const arrayVariables = [];
@@ -14,10 +15,11 @@ export const generateContextObject = (variables) => {
   return context;
 };
 
-export const generateAttachmentsObject = (namePath) => {
+export const generateAttachmentsObject = (namePath, mail) => {
   const attachments = [];
 
   const regex = /\s*,\s*/;
+  let success;
 
   const images = TemplateDao.selectImagesByNameTemplate(`${namePath}.hbs`);
 
@@ -34,6 +36,30 @@ export const generateAttachmentsObject = (namePath) => {
       });
     });
 
+    success = true;
+  }
+
+  if (mail.attachments) {
+    mail.attachments.forEach((element) => {
+      const appendix = AttachmentsDao.selectByIds(element);
+
+      if (appendix !== null) {
+        const pathAttachments = path.join('src', 'views', 'attachments');
+
+        appendix.forEach((attach) => {
+          attachments.push({
+            filename: attach.name,
+            path: path.resolve(pathAttachments, attach.name),
+          });
+        });
+
+        success = true;
+      }
+    });
+  }
+
+
+  if (success === true) {
     return attachments;
   }
 
@@ -48,7 +74,7 @@ export const handlerEmail = (mails) => {
       mail.context = generateContextObject(template.variables);
     }
 
-    const attachments = generateAttachmentsObject(template.name);
+    const attachments = generateAttachmentsObject(template.name, mail);
 
     if (attachments !== undefined) {
       mail.attachments = attachments;

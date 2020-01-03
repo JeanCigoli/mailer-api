@@ -55,7 +55,7 @@ class TemplateController {
         payload,
       });
 
-      return res.json(response);
+      return res.status(201).json(response);
     }
 
     response = apiErrorResponse({
