@@ -18,6 +18,7 @@ class Queue {
           redis: redisConfig,
         }),
         handle,
+        removeOnSuccess: true,
       };
     });
   }

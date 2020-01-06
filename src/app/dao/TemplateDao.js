@@ -8,7 +8,7 @@ class TemplateDao {
     await sqlite.insert('tb_templates', { name, variables, images }, (res) => {
       json = {
         name,
-        location: `localhost:3000/templates/${name}`,
+        location: `localhost:3000/templates/${res}`,
         code: res,
       };
     });
@@ -44,7 +44,7 @@ class TemplateDao {
     let data;
 
     await sqlite.runAsync('SELECT * FROM tb_templates WHERE name = ? ', [name], (row) => {
-      if (row.length > 0) {
+      if (row.length === 0) {
         data = false;
       } else {
         data = row;

@@ -13,7 +13,7 @@ routes.get('/templates', TemplateController.index);
 
 routes.get('/templates/:id', TemplateController.show);
 
-routes.delete('/templates/:name', TemplateController.delete);
+routes.delete('/templates/:id', TemplateController.delete);
 
 routes.post('/mail', MailController.send);
 

@@ -4,7 +4,6 @@ import { promisify } from 'util';
 
 const asyncUnlink = promisify(fs.unlink);
 
-
 export function apiResponse({
   success = true, message = '', payload = {}, errors = [],
 }) {

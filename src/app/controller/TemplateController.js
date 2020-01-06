@@ -13,13 +13,11 @@ class TemplateController {
   async store(req, res) {
     const { name, variables, imagesName } = req.body;
     let response = null;
-
-    const re = /\s*,\s*/;
-
-    const namePage = name.split('.');
+    const regex = /\s*,\s*/;
 
     if (imagesName !== undefined) {
-      const images = imagesName.split(re);
+      const namePage = name.split('.');
+      const images = imagesName.split(regex);
 
       const oldPath = path.join('src', 'views', 'img');
 
@@ -35,7 +33,6 @@ class TemplateController {
       }
     }
 
-
     if (!nameValid(name)) {
       response = apiErrorResponse({
         message: 'Parâmetro enviado é inválido',
@@ -47,7 +44,7 @@ class TemplateController {
 
     const templateExist = await TemplateDao.selectByNameTemplate(name);
 
-    if (templateExist) {
+    if (!templateExist) {
       const payload = await TemplateDao.insertTemplate({ name, variables, images: imagesName });
 
       response = apiResponse({
@@ -71,9 +68,7 @@ class TemplateController {
     let response = null;
 
     if (isNumber(id)) {
-      let payload = null;
-
-      payload = await TemplateDao.selectByIdTemplate(id);
+      const payload = await TemplateDao.selectByIdTemplate(id);
 
       if (!payload) {
         response = apiErrorResponse({
@@ -101,10 +96,9 @@ class TemplateController {
   }
 
   async index(req, res) {
-    let payload = [];
     let response = '';
 
-    payload = await TemplateDao.selectAllTemplates();
+    const payload = await TemplateDao.selectAllTemplates();
 
     if (payload.length === 0) {
       response = apiResponse({
@@ -121,16 +115,10 @@ class TemplateController {
   }
 
   async delete(req, res) {
-    const { name } = req.params;
-
-    const nameArray = name.split('.');
-
-    const fileName = path.join('src', 'views', 'layouts', name);
-    const imageName = path.join('src', 'views', 'img', nameArray[0]);
-
+    const { id } = req.params;
     let response = null;
 
-    if (!nameValid(name)) {
+    if (!isNumber(id)) {
       response = apiErrorResponse({
         message: 'Parâmetro enviado é inválido',
         errors: ['Parâmetro enviado é inválido'],
@@ -139,6 +127,23 @@ class TemplateController {
       return res.status(404).json(response);
     }
 
+    const dataTemplate = await TemplateDao.selectByIdTemplate(id);
+
+    if (!dataTemplate) {
+      response = apiErrorResponse({
+        message: 'Template não encontrado',
+        errors: ['Template não encontrado'],
+      });
+
+      return res.status(404).json(response);
+    }
+
+    const { name } = dataTemplate[0];
+    const nameArray = name.split('.');
+
+    const fileName = path.join('src', 'views', 'layouts', name);
+    const imageName = path.join('src', 'views', 'img', nameArray[0]);
+
     try {
       await TemplateDao.deleteByTemplate(name);
       await asyncUnlink(fileName);
@@ -146,7 +151,7 @@ class TemplateController {
       rimraf(imageName, () => { });
 
       response = apiResponse({
-        message: 'Arquivo deletado com sucesso',
+        message: 'Template deletado com sucesso',
       });
 
       return res.json(response);
