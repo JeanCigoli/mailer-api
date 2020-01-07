@@ -8,7 +8,7 @@ import { handlerEmail } from './utils';
 
 class MailController {
   async send(req, res) {
-    const { mails } = req.body;
+    const mails = req.body;
 
     const dataEmail = await handlerEmail(mails);
 
@@ -21,6 +21,7 @@ class MailController {
 
       response = apiResponse({
         message: 'Enviado com sucesso!',
+        payload: dataEmail,
       });
 
       res.json(response);

@@ -5,14 +5,14 @@ const storage = multer.diskStorage({
   destination: (req, file, callback) => {
     if (file.fieldname === 'page') {
       callback(null, path.resolve(__dirname, '..', '..', 'views', 'layouts'));
-    } else if (file.fieldname === 'image') {
-      callback(null, path.resolve(__dirname, '..', '..', 'views', 'img'));
-    } else if (file.fieldname === 'file') {
+    } else if (file.fieldname === 'attachments') {
       callback(null, path.resolve(__dirname, '..', '..', 'views', 'attachments'));
+    } else if (file.fieldname === 'template') {
+      callback(null, path.resolve(__dirname, '..', '..', 'views', 'layouts', 'temp'));
     }
   },
   filename: (req, file, callback) => {
-    if (file.fieldname === 'file') {
+    if (file.fieldname === 'attachments') {
       const ext = path.extname(file.originalname);
       const name = `${Date.now()}${Math.floor(Math.random() * 100)}${ext}`;
 
@@ -23,6 +23,12 @@ const storage = multer.diskStorage({
       }
 
       callback(null, `${name}`);
+    } else if (file.fieldname === 'template') {
+      if (req.body.template === undefined) {
+        req.body.template = file.originalname;
+      }
+
+      callback(null, `${file.originalname}`);
     } else {
       callback(null, `${file.originalname}`);
     }

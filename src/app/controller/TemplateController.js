@@ -1,9 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
-import rimraf from 'rimraf';
 import {
-  apiResponse, apiErrorResponse, isNumber, nameValid, moveFiles,
+  apiResponse, apiErrorResponse, isNumber, nameValid,
 } from '../utils/index';
 import TemplateDao from '../dao/TemplateDao';
 
@@ -11,27 +10,8 @@ const asyncUnlink = promisify(fs.unlink);
 
 class TemplateController {
   async store(req, res) {
-    const { name, variables, imagesName } = req.body;
+    const { name, variables } = req.body;
     let response = null;
-    const regex = /\s*,\s*/;
-
-    if (imagesName !== undefined) {
-      const namePage = name.split('.');
-      const images = imagesName.split(regex);
-
-      const oldPath = path.join('src', 'views', 'img');
-
-      const moved = moveFiles(images, oldPath, path.join(oldPath, namePage[0]));
-
-      if (!moved) {
-        response = apiErrorResponse({
-          message: 'Erro no upload de imagem',
-          errors: ['Erro no upload de imagem', 'Arquivos já se encontra cadastrado'],
-        });
-
-        return res.status(404).json(response);
-      }
-    }
 
     if (!nameValid(name)) {
       response = apiErrorResponse({
@@ -45,7 +25,7 @@ class TemplateController {
     const templateExist = await TemplateDao.selectByNameTemplate(name);
 
     if (!templateExist) {
-      const payload = await TemplateDao.insertTemplate({ name, variables, images: imagesName });
+      const payload = await TemplateDao.insertTemplate({ name, variables });
 
       response = apiResponse({
         message: 'Arquivo cadastrado com sucesso',
@@ -139,16 +119,11 @@ class TemplateController {
     }
 
     const { name } = dataTemplate[0];
-    const nameArray = name.split('.');
-
     const fileName = path.join('src', 'views', 'layouts', name);
-    const imageName = path.join('src', 'views', 'img', nameArray[0]);
 
     try {
       await TemplateDao.deleteByTemplate(name);
       await asyncUnlink(fileName);
-
-      rimraf(imageName, () => { });
 
       response = apiResponse({
         message: 'Template deletado com sucesso',

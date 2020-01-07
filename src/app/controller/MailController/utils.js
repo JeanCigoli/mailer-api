@@ -1,6 +1,4 @@
 import path from 'path';
-import TemplateDao from '../../dao/TemplateDao';
-import AttachmentsDao from '../../dao/AttachmentsDao';
 
 export const generateContextObject = (variables) => {
   const arrayVariables = [];
@@ -15,42 +13,19 @@ export const generateContextObject = (variables) => {
   return context;
 };
 
-export const generateAttachmentsObject = (namePath, mail) => {
+export const generateAttachmentsObject = (mail) => {
   const attachments = [];
 
-  const regex = /\s*,\s*/;
   let success;
 
-  const images = TemplateDao.selectImagesByNameTemplate(`${namePath}.hbs`);
-
-  if (images !== null) {
-    const imagesName = images[0].images.split(regex);
-
-    const pathImage = path.join('src', 'views', 'img', namePath);
-
-    imagesName.forEach((name) => {
-      attachments.push({
-        filename: name,
-        path: path.join(pathImage, name),
-        cid: name,
-      });
-    });
-
-    success = true;
-  }
-
-  if (mail.attachments) {
-    mail.attachments.forEach((element) => {
-      const appendix = AttachmentsDao.selectByIds(element);
-
+  if (mail) {
+    mail.forEach((appendix) => {
       if (appendix !== null) {
         const pathAttachments = path.join('src', 'views', 'attachments');
 
-        appendix.forEach((attach) => {
-          attachments.push({
-            filename: attach.name,
-            path: path.resolve(pathAttachments, attach.name),
-          });
+        attachments.push({
+          filename: appendix,
+          path: path.resolve(pathAttachments, appendix),
         });
 
         success = true;
@@ -67,23 +42,21 @@ export const generateAttachmentsObject = (namePath, mail) => {
 };
 
 export const handlerEmail = (mails) => {
-  const dataEmail = mails.map((mail) => {
-    const { template } = mail;
+  const context = JSON.parse(mails.variables);
 
-    if (template.variables !== undefined && template.variables.length > 0) {
-      mail.context = generateContextObject(template.variables);
-    }
+  if (context !== undefined) {
+    mails.context = generateContextObject(context);
+  }
 
-    const attachments = generateAttachmentsObject(template.name, mail);
+  const attachments = generateAttachmentsObject(mails.filenames);
 
-    if (attachments !== undefined) {
-      mail.attachments = attachments;
-    }
+  if (attachments !== undefined) {
+    mails.attachments = attachments;
+  }
 
-    mail.template = template.name;
+  delete mails.name;
+  delete mails.variables;
+  delete mails.filenames;
 
-    return mail;
-  });
-
-  return dataEmail;
+  return mails;
 };

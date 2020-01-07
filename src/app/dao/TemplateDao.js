@@ -2,10 +2,10 @@
 import sqlite from '../../config/database';
 
 class TemplateDao {
-  async insertTemplate({ name, variables, images }) {
+  async insertTemplate({ name, variables }) {
     let json;
 
-    await sqlite.insert('tb_templates', { name, variables, images }, (res) => {
+    await sqlite.insert('tb_templates', { name, variables }, (res) => {
       json = {
         name,
         location: `localhost:3000/templates/${res}`,
@@ -50,20 +50,6 @@ class TemplateDao {
         data = row;
       }
     });
-
-    return data;
-  }
-
-  selectImagesByNameTemplate(name) {
-    let data;
-
-    const row = sqlite.run('SELECT images FROM tb_templates WHERE name = ? ', [name]);
-
-    if (row.length === 0) {
-      data = null;
-    } else {
-      data = row;
-    }
 
     return data;
   }
