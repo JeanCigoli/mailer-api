@@ -4,34 +4,46 @@ import SendEmail from '../../jobs/SendMail';
 import {
   apiResponse, apiErrorResponse,
 } from '../../utils/index';
-import { handlerEmail } from './utils';
+import { handlerEmail, mailValidate } from './utils';
 
 class MailController {
   async send(req, res) {
-    const mails = req.body;
+    const {
+      name, template, from, to, subject,
+    } = req.body;
 
-    const dataEmail = await handlerEmail(mails);
+    const mario = mailValidate({
+      name, template, from, to, subject,
+    });
+
+    if (!mario.status) {
+      response = apiErrorResponse({
+        message: 'Verifique os atributos',
+        errors: mario.errors,
+      });
+
+      return res.status(404).json(response);
+    }
+
+    const dataEmail = await handlerEmail(req.body);
 
     try {
-      dataEmail.forEach(async (element) => {
-        await Queue.add(SendEmail.key, {
-          element,
-        });
+      await Queue.add(SendEmail.key, {
+        element: dataEmail,
       });
 
       response = apiResponse({
         message: 'Enviado com sucesso!',
-        payload: dataEmail,
       });
 
-      res.json(response);
+      return res.json(response);
     } catch (error) {
       response = apiErrorResponse({
         message: 'Erro ao enviar o e-mail',
         errors: ['Erro ao enviar o e-mail'],
       });
 
-      res.status(404).json(response);
+      return res.status(404).json(response);
     }
   }
 }

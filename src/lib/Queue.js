@@ -16,6 +16,8 @@ class Queue {
       this.queues[key] = {
         bee: new Bee(key, {
           redis: redisConfig,
+          isWorker: true,
+          removeOnSuccess: true,
         }),
         handle,
       };
@@ -23,12 +25,23 @@ class Queue {
   }
 
   add(queue, job) {
-    return this.queues[queue].bee.createJob(job).save();
+    return this.queues[queue].bee.createJob(job).retries(2).save();
   }
 
   processQueue() {
     jobs.forEach((job) => {
       const { bee, handle } = this.queues[job.key];
+
+      const TIMEOUT = 30 * 1000;
+
+      process.on('uncaughtException', async () => {
+        try {
+          await bee.close(TIMEOUT);
+        } catch (err) {
+          console.error('bee-queue failed to shut down gracefully', err);
+        }
+        process.exit(1);
+      });
 
       bee.on('failed', this.handleFailure).process(handle);
     });

@@ -33,7 +33,6 @@ export const generateAttachmentsObject = (mail) => {
     });
   }
 
-
   if (success === true) {
     return attachments;
   }
@@ -43,6 +42,17 @@ export const generateAttachmentsObject = (mail) => {
 
 export const handlerEmail = (mails) => {
   const context = JSON.parse(mails.variables);
+
+
+  if (mails.template === undefined) {
+    const basename = mails.name.split('.');
+
+    const [name] = basename;
+    mails.template = name;
+  } else {
+    const basename = mails.template.split('.');
+    mails.template = `temp/${basename[0]}`;
+  }
 
   if (context !== undefined) {
     mails.context = generateContextObject(context);
@@ -59,4 +69,32 @@ export const handlerEmail = (mails) => {
   delete mails.filenames;
 
   return mails;
+};
+
+export const mailValidate = ({
+  name, template, from, to, subject,
+}) => {
+  const errors = [];
+  let status = true;
+
+  if (!name && !template) {
+    errors.push(['É necessário mandar o atributo: name ou template']);
+    status = false;
+  }
+
+  if (!from || !to || !subject) {
+    errors.push(['É necessário mandar os atributos obrigatórios: from, to e subject']);
+    status = false;
+  }
+
+  if (!status) {
+    const response = {
+      status,
+      errors,
+    };
+
+    return response;
+  }
+
+  return { status };
 };
