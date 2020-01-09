@@ -4,36 +4,52 @@ import SendEmail from '../../jobs/SendMail';
 import {
   apiResponse, apiErrorResponse,
 } from '../../utils/index';
-import { handlerEmail, mailValidate } from './utils';
+import { handlerEmail, mailValidate, deleteFiles } from './utils';
 
 class MailController {
   async send(req, res) {
+    let files;
     const {
-      name, template, from, to, subject,
+      name, template, from, to, subject, filenames,
     } = req.body;
 
-    const mario = mailValidate({
+    const canSend = mailValidate({
       name, template, from, to, subject,
     });
 
-    if (!mario.status) {
+    if (!canSend.status) {
       response = apiErrorResponse({
         message: 'Verifique os atributos',
-        errors: mario.errors,
+        errors: canSend.errors,
       });
 
       return res.status(404).json(response);
     }
 
-    const dataEmail = await handlerEmail(req.body);
+    const dataEmail = handlerEmail(req.body);
 
     try {
-      await Queue.add(SendEmail.key, {
-        element: dataEmail,
+      dataEmail.forEach(async (mail) => {
+        await Queue.add(SendEmail.key, {
+          element: mail,
+        });
       });
+
+      files = deleteFiles({ template, filenames });
+
+      if (files !== undefined) {
+        await Queue.add(SendEmail.key, {
+          element: {
+            status: 'Delete',
+            ...files,
+          },
+        });
+      }
+
 
       response = apiResponse({
         message: 'Enviado com sucesso!',
+
       });
 
       return res.json(response);

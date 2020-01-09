@@ -1,5 +1,5 @@
 import Mail from '../../lib/Mail';
-
+import { deleteFiles } from '../utils';
 
 class SendMail {
   get key() {
@@ -9,7 +9,15 @@ class SendMail {
   async handle({ data }) {
     const { element } = data;
 
-    await Mail.sendEmail(element);
+    if (!element.status) {
+      await Mail.sendEmail(element);
+    } else {
+      deleteFiles(element);
+    }
+  }
+
+  deleteFile(element) {
+    console.log(element);
   }
 }
 

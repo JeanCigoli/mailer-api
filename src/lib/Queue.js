@@ -8,6 +8,17 @@ class Queue {
   constructor() {
     this.queues = {};
 
+    const TIMEOUT = 30 * 1000;
+
+    process.on('uncaughtException', async () => {
+      try {
+        await this.queues.close(TIMEOUT);
+      } catch (err) {
+        console.error('bee-queue failed to shut down gracefully', err);
+      }
+      process.exit(1);
+    });
+
     this.init();
   }
 
@@ -31,17 +42,6 @@ class Queue {
   processQueue() {
     jobs.forEach((job) => {
       const { bee, handle } = this.queues[job.key];
-
-      const TIMEOUT = 30 * 1000;
-
-      process.on('uncaughtException', async () => {
-        try {
-          await bee.close(TIMEOUT);
-        } catch (err) {
-          console.error('bee-queue failed to shut down gracefully', err);
-        }
-        process.exit(1);
-      });
 
       bee.on('failed', this.handleFailure).process(handle);
     });

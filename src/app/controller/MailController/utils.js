@@ -41,34 +41,41 @@ export const generateAttachmentsObject = (mail) => {
 };
 
 export const handlerEmail = (mails) => {
-  const context = JSON.parse(mails.variables);
+  const mailsTemplate = [];
 
+  const context = JSON.parse(mails.to);
 
-  if (mails.template === undefined) {
-    const basename = mails.name.split('.');
+  context.forEach((to) => {
+    const mailsTemp = {};
 
-    const [name] = basename;
-    mails.template = name;
-  } else {
-    const basename = mails.template.split('.');
-    mails.template = `temp/${basename[0]}`;
-  }
+    mailsTemp.from = mails.from;
+    mailsTemp.to = to.mail;
+    mailsTemp.subject = mails.subject;
 
-  if (context !== undefined) {
-    mails.context = generateContextObject(context);
-  }
+    if (mails.template === undefined) {
+      const basename = mails.name.split('.');
 
-  const attachments = generateAttachmentsObject(mails.filenames);
+      const [name] = basename;
+      mailsTemp.template = name;
+    } else {
+      const basename = mails.template.split('.');
+      mailsTemp.template = `temp/${basename[0]}`;
+    }
 
-  if (attachments !== undefined) {
-    mails.attachments = attachments;
-  }
+    if (to.variables !== undefined) {
+      mailsTemp.context = generateContextObject(to.variables);
+    }
 
-  delete mails.name;
-  delete mails.variables;
-  delete mails.filenames;
+    const attachments = generateAttachmentsObject(mails.filenames);
 
-  return mails;
+    if (attachments !== undefined) {
+      mailsTemp.attachments = attachments;
+    }
+
+    mailsTemplate.push(mailsTemp);
+  });
+
+  return mailsTemplate;
 };
 
 export const mailValidate = ({
@@ -87,6 +94,17 @@ export const mailValidate = ({
     status = false;
   }
 
+  if (to) {
+    to = JSON.parse(to);
+
+    to.forEach((toMail) => {
+      if (!toMail.mail || toMail.mail === '') {
+        errors.push(['O atributo mail de dentro de to está vazio']);
+        status = false;
+      }
+    });
+  }
+
   if (!status) {
     const response = {
       status,
@@ -97,4 +115,25 @@ export const mailValidate = ({
   }
 
   return { status };
+};
+
+
+export const deleteFiles = ({ template, filenames }) => {
+  let files;
+
+  if (template || filenames) {
+    if (!template) {
+      if (filenames !== undefined) {
+        files = { attachments: filenames };
+      }
+    } else {
+      files = { template };
+
+      if (filenames !== undefined) {
+        files.attachments = filenames;
+      }
+    }
+  }
+
+  return files;
 };
