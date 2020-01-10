@@ -1,18 +1,5 @@
 import path from 'path';
 
-export const generateContextObject = (variables) => {
-  const arrayVariables = [];
-
-  variables.forEach((element) => {
-    const { key, value } = element;
-    arrayVariables[key] = value;
-  });
-
-  const context = { ...arrayVariables };
-
-  return context;
-};
-
 export const generateAttachmentsObject = (mail) => {
   const attachments = [];
 
@@ -49,7 +36,7 @@ export const handlerEmail = (mails) => {
     const mailsTemp = {};
 
     mailsTemp.from = mails.from;
-    mailsTemp.to = to.mail;
+    mailsTemp.to = to.email;
     mailsTemp.subject = mails.subject;
 
     if (mails.template === undefined) {
@@ -61,7 +48,7 @@ export const handlerEmail = (mails) => {
     }
 
     if (to.variables !== undefined) {
-      mailsTemp.context = generateContextObject(to.variables);
+      mailsTemp.context = to.variables;
     }
 
     const attachments = generateAttachmentsObject(mails.filenames);
@@ -96,7 +83,7 @@ export const mailValidate = ({
     to = JSON.parse(to);
 
     to.forEach((toMail) => {
-      if (!toMail.mail || toMail.mail === '') {
+      if (!toMail.email || toMail.email === '') {
         errors.push(['O atributo mail de dentro de to está vazio']);
         status = false;
       }
