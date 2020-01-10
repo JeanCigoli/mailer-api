@@ -11,13 +11,13 @@ class SendMail {
 
     if (!element.status) {
       await Mail.sendEmail(element);
-    } else {
-      deleteFiles(element);
     }
-  }
 
-  deleteFile(element) {
-    console.log(element);
+    if (element.status) {
+      setTimeout(() => {
+        deleteFiles(element);
+      }, 10000);
+    }
   }
 }
 

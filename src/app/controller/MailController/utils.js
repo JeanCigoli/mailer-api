@@ -54,9 +54,7 @@ export const handlerEmail = (mails) => {
 
     if (mails.template === undefined) {
       const basename = mails.name.split('.');
-
-      const [name] = basename;
-      mailsTemp.template = name;
+      mailsTemp.template = `${basename[0]}`;
     } else {
       const basename = mails.template.split('.');
       mailsTemp.template = `temp/${basename[0]}`;
