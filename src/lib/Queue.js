@@ -8,8 +8,18 @@ class Queue {
   constructor() {
     this.queues = {};
 
-
     this.init();
+
+    const TIMEOUT = 30 * 1000;
+
+    process.on('uncaughtException', async () => {
+      try {
+        await this.queues.close(TIMEOUT);
+      } catch (err) {
+        console.error('bee-queue failed to shut down gracefully', err);
+      }
+      process.exit(1);
+    });
   }
 
   init() {
