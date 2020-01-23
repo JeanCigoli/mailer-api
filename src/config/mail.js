@@ -1,4 +1,5 @@
 export default {
+  pool: true,
   host: 'mail-ssl.locaweb.com.br',
   port: 587,
   secure: false,

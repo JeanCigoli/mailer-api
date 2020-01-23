@@ -9,17 +9,6 @@ class Queue {
     this.queues = {};
 
     this.init();
-
-    const TIMEOUT = 30 * 1000;
-
-    process.on('uncaughtException', async () => {
-      try {
-        await this.queues.close(TIMEOUT);
-      } catch (err) {
-        console.error('bee-queue failed to shut down gracefully', err);
-      }
-      process.exit(1);
-    });
   }
 
   init() {
@@ -29,14 +18,24 @@ class Queue {
           redis: redisConfig,
           isWorker: true,
           removeOnSuccess: true,
+          activateDelayedJobs: true,
         }),
         handle,
       };
     });
   }
 
-  add(queue, job) {
-    return this.queues[queue].bee.createJob(job).retries(2).save();
+  add(queue, job, delay) {
+    const delayHour = new Date();
+
+    delayHour.setMinutes(delayHour.getMinutes() + delay);
+
+    console.log(delayHour);
+
+    return this.queues[queue].bee.createJob(job)
+      .retries(2)
+      .delayUntil(delayHour)
+      .save();
   }
 
   processQueue() {
