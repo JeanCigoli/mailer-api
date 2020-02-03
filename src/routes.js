@@ -12,6 +12,8 @@ routes.get('/templates', TemplateController.index);
 
 routes.get('/templates/:id', TemplateController.show);
 
+routes.get('/templates/render/:name', TemplateController.render);
+
 routes.delete('/templates/:id', TemplateController.delete);
 
 routes.post('/mail', upload.fields([{ name: 'template', maxCount: 1 }, { name: 'attachments' }]), MailController.send);

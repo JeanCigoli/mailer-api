@@ -139,6 +139,14 @@ class TemplateController {
       return res.status(404).json(response);
     }
   }
+
+  async render(req, res) {
+    const { name } = req.params;
+
+    const template = path.resolve('src', 'views', 'layouts', name);
+
+    res.render(template);
+  }
 }
 
 export default new TemplateController();
