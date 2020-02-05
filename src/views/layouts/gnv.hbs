@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+    <html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Design - Layout E-mail</title>
+        <!-- <link rel="stylesheet" href="./css/style.css"> -->
+
+        <style>
+            *{
+                padding: 0;
+                margin: 0;
+                box-sizing: border-box;
+            }
+
+            /* CONTAINER PRINCIPAL */
+            .container{
+                width: 600px;
+                min-height: 200px;
+                height: auto;
+                /* box-shadow: 0 0 1px rgba(0, 0, 0, .6); */
+                border: solid 1px rgba(0, 0, 0, .1);
+                margin: 50px auto;
+            }
+
+
+            /* ----- PADRONIZAÇÕES ----- */
+
+            a{
+                text-decoration: none;
+            }
+
+            /* MARGEM  */
+            .margin-top{
+                margin-top: 15px;
+            }
+
+            /* RECUO DE LINHA */
+            .retreat{
+                text-indent: 25px;
+            }
+
+            /* ALINHAMENTO JUSTIFICADO */
+            .justify{
+                text-align: justify;
+            }
+
+            /* TEXTO NO CENTRO */
+            .center{
+                text-align: center;
+            }
+
+            /* COR PADRÃO DE PALAVRAS-CHAVE E TITULO */
+            .text_color{
+                color: #0F7BA6;
+                font-weight: bold;
+            }
+
+            /* FRASE SUBLINHADA */
+            .underline{
+                text-decoration: underline;
+            }
+
+
+            /* ----- CABEÇALHO DO CONTAINER ----- */
+            .header{
+                width: 100%;
+                height: auto;
+            }
+
+            /* TEXTO DO CABEÇALHO */
+            .text_header{
+                width: 100%;
+                height: 100px;
+                background: linear-gradient(rgb(208, 110, 3), rgb(252, 145, 17));
+            }
+
+            .text_header p{
+                font-weight: bold;
+                text-align: center;
+                font-family: sans-serif;
+                font-size: 20px;
+                width: 420px;
+                height: 100%;
+                color: white;
+                line-height: 1.5;
+                margin: 0 auto;
+                padding-top: 17.5px;
+            }
+
+            /* IMAGEM DO CABEÇALHO */
+            .image_header{
+                width: 100%;
+                height: 275px;
+            }
+
+            .image_header img{
+                width: 100%;
+                height: 100%;
+            }
+
+            /* ----- CORPO DO CONTAINER ----- */
+            .body{
+                width: 100%;
+                padding-bottom: 20px;
+                height: auto;
+                background-color: #FAFAFA;
+            }
+
+            /* DIV QUE SEGURA O TEXTO SOLUÇÃO */
+            .solution_body{
+                width: 500px;
+                margin: 0 auto;
+                padding: 25px 0;
+                line-height: 1.5;
+            }
+
+            .solution_body p{
+                font-family: sans-serif;
+                font-size: 18px;
+                text-align: center;
+            }
+
+            /* LINHA HORIZONTAL */
+            hr{
+                width: 85%;
+                margin: 10px auto;
+                border: solid 1px rgba(0, 0, 0, .2);
+            }
+
+            /* TEXTO DO CORPO */
+            .text_body{
+                width: 500px;
+                margin: 0 auto;
+                padding: 25px 0;
+                line-height: 1.5;
+            }
+
+            .text_body p{
+                font-family: sans-serif;
+                font-size: 18px;
+            }
+
+            /* ----- RODAPÉ DO CONTAINER ----- */
+            .footer{
+                width: 100%;    
+                height: auto;
+                background-color: white;
+                padding: 40px 0 0 0;
+                border-top: solid 0.3px rgba(0, 0, 0, .3);
+            }
+
+            /* TITULO DO RODAPÉ */
+            .title_footer{
+                font-family: sans-serif;
+                font-size: 20px;
+                font-weight: bold;
+                letter-spacing: 0.2px;
+            }
+
+            /* IMAGENS PARA DOWNLOAD DO APP */
+            .div_download_app{
+                width: 500px;
+                height: auto;
+                margin: 50px auto;
+                display: flex;
+            }
+
+            .div_download_app div{
+                width: 180px;
+                height: auto;
+                margin: 0 auto
+            }
+
+            .google_play_download img, .app_store_download img{
+                width: 100%;
+                height: auto;
+            }
+
+            
+            .img_sistema_gnv img{
+                width: 100%;
+                height: 100%;
+            }
+
+            /* LINK PARA DOWNLOAD */
+            .text_link_footer{
+                font-family: sans-serif;
+                font-size: 15px;
+            }
+
+            /* FRASE DE CONSULTA DO RODAPÉ */
+            .text_consulta_footer{
+                font-family: sans-serif;
+                font-size: 17px;
+                margin-top: 20px;
+                font-weight: bold;
+            }
+
+            .icon_selo_inteligente{
+                width: 100%;
+                height: 70px;
+                text-align: right   ;
+            }
+
+            .icon_selo_inteligente img{
+                height: 40%;
+                width: auto;
+                margin-right: 20px;
+                margin-top: 25px;
+            }
+        </style>
+
+    </head>
+
+    <body>
+        
+        <!-- CONTAINER PRINCIPAL -->
+        <div class="container">
+
+            <div class="header">
+
+                <!-- CABEÇALHO -->
+                <div class="text_header">
+                    <p>A instalação irregular do sistema de GNV coloca a vida de muitas pessoas em risco! </p>
+                </div>
+                    
+                <div class="image_header">
+                    <img src="https://midia.primitecnologia.com/email/sistema_gnv.jpg" alt="Baixe agora o aplicativo - Selo Inteligente" title="Sistema GNV">         
+                </div>
+            </div>
+
+            <!-- CORPO -->
+            <div class="body">
+
+                <div class="solution_body">
+                    <p class="text_solution">
+                        Pensando nisso, queremos convidar você a conhecer <span class="text_color">o novo Aplicativo Selo Inteligente!</span> Agora mais interativo, conta com seção de informativos e notícias
+                         do setor!
+                    </p>
+                </div>
+
+                <hr>
+
+                <div class="text_body justify">
+                    <p>
+                        Nossa plataforma auxilia na <span class="text_color">fiscalização</span>, dando segurança e autonomia ao consumidor. Com isso <span class="text_color">valorizamos a sua empresa</span>, que trabalha pela segurança
+                         dos seus clientes. 
+                    </p>
+                    <p class="margin-top justify">
+                        Com uma simples foto de seu smartphone, a Inteligência Artificial da plataforma reconhece as características exclusivas dos selos utilizados no KIT
+                         GNV autenticando sua <span class="text_color">veracidade, rastreabilidade</span>, além de proporcionar <span class="text_color">consultas em tempo real.</span>
+                    </p>
+                </div>  
+            </div>
+
+            <!-- RODAPÉ -->
+            <div class="footer">
+
+                <!-- TITULO DO RODAPÉ -->
+                <p class="title_footer center text_color">
+                    Baixe já o aplicativo Selo Inteligente!
+                </p>
+
+                <!-- IMAGEM PARA DOWNLOAD -->
+                <div class="div_download_app">
+                    <div class="google_play_download">
+                        <a target="_blank" href="https://play.google.com/store/apps/details?id=app.selointeligente.com.br.selointeligente&hl=pt_BR"><img src="https://midia.primitecnologia.com/email/disponivel_google_play.png" alt="Disponível no Google Play" title="Google Play"></a>
+                    </div>
+                    <div class="app_store_download">
+                        <a target="_blank" href="https://apps.apple.com/br/app/selo-inteligente/id1489204565"><img src="https://midia.primitecnologia.com/email/disponivel_app_store.png" alt="Disponível na App Store" title="App Store">
+                    </div>
+                </div>
+
+                <!-- LINK PARA DOWNLOAD -->
+                <p class="text_link_footer center">
+                    Acesse o link: <span class="text_color underline"><a class="text_color" target="_blank" href="http://bit.ly/baixarselointeligente">http://bit.ly/baixarselointeligente</a></span>, após fazer o seu cadastro, 
+                </p>
+
+                <!-- CONSULTA GNV -->
+                <p class="text_consulta_footer center text_color">
+                    consulte os selos GNV e conte-nos sua experiência.
+                </p>
+
+                <!-- ICONE DA SELO INTELIGENTE -->
+                <div class="icon_selo_inteligente">
+                    <img src="https://midia.primitecnologia.com/email/selo_inteligente.jpg" alt="Selo Inteligente" title="Selo Inteligente">
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
