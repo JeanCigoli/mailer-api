@@ -75,3 +75,18 @@ export const generateImage = async (name) => {
 
   await browser.close();
 };
+
+export const writeLog = (queue, erro) => {
+  const pathLog = path.resolve('src', 'log', 'log.txt');
+
+  const newLog = `
+    Queue: ${queue},
+    Erro: ${erro},
+    Date: ${new Date()}
+    -------------------------------------\n\n
+  `;
+
+  fs.appendFile(pathLog, newLog, (err) => {
+    console.log(err);
+  });
+};

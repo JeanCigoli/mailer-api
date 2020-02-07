@@ -1,6 +1,7 @@
 import Bee from 'bee-queue';
 import SendMail from '../app/jobs/SendMail';
 import redisConfig from '../config/redis';
+import { writeLog } from '../app/utils/index';
 
 const jobs = [SendMail];
 
@@ -30,8 +31,6 @@ class Queue {
 
     delayHour.setMinutes(delayHour.getMinutes() + delay);
 
-    console.log(delayHour);
-
     return this.queues[queue].bee.createJob(job)
       .retries(2)
       .delayUntil(delayHour)
@@ -47,7 +46,7 @@ class Queue {
   }
 
   handleFailure(job, err) {
-    console.log(`Queue ${job.queue.name}: FAILED `, err);
+    writeLog(job.queue.name, err.message);
   }
 }
 
