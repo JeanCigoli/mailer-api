@@ -4,7 +4,7 @@ import SendEmail from '../../jobs/SendMail';
 import {
   apiResponse, apiErrorResponse,
 } from '../../utils/index';
-import { handlerEmail, mailValidate, deleteFiles } from './utils';
+import { handlerEmail, mailValidate, deleteFiles, handleLog, handlerLogEmail } from './utils';
 
 class MailController {
   async send(req, res) {
@@ -26,6 +26,8 @@ class MailController {
       return res.status(404).json(response);
     }
 
+    const nameLog = handleLog();
+
     const dataEmail = handlerEmail(req.body);
 
     let cont = 0;
@@ -36,6 +38,7 @@ class MailController {
       dataEmail.forEach(async (mail) => {
         if (cont < limit) {
           Queue.add(SendEmail.key, {
+            log: nameLog,
             element: mail,
           }, delay);
 
@@ -45,25 +48,27 @@ class MailController {
           delay += delayMinutes;
 
           Queue.add(SendEmail.key, {
+            log: nameLog,
             element: mail,
           }, delay);
         }
       });
 
-      files = deleteFiles({ template, filenames });
+      const dataLogEmail = handlerLogEmail(from, nameLog);
 
-      if (files !== undefined) {
-        Queue.add(SendEmail.key, {
-          element: {
-            status: 'Delete',
-            ...files,
-          },
-        }, delay);
+      Queue.add(SendEmail.key, {
+        log: nameLog,
+        element: dataLogEmail,
+      }, delay);
 
-        cont = 0;
-        delay = 0;
-      }
+      files = deleteFiles({ template, filenames, nameLog });
 
+      Queue.add(SendEmail.key, {
+        element: {
+          status: 'Delete',
+          ...files,
+        },
+      }, delay);
 
       response = apiResponse({
         message: 'Enviado com sucesso!',

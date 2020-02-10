@@ -38,6 +38,7 @@ const asyncUnlink = promisify(fs.unlink);
 export const deleteFiles = (files) => {
   const templatePath = path.resolve('src', 'views', 'layouts', 'temp');
   const attachmentsPath = path.resolve('src', 'views', 'attachments');
+  const logPath = path.resolve('src', 'log');
 
   if (!files.template) {
     if (files.attachments !== undefined) {
@@ -45,6 +46,8 @@ export const deleteFiles = (files) => {
         asyncUnlink(path.join(attachmentsPath, attachment));
       });
     }
+
+    asyncUnlink(path.join(logPath, files.log));
   } else {
     asyncUnlink(path.join(templatePath, files.template));
 
@@ -53,6 +56,7 @@ export const deleteFiles = (files) => {
         asyncUnlink(path.join(attachmentsPath, attachment));
       });
     }
+    asyncUnlink(path.join(logPath, files.log));
   }
 };
 
@@ -76,13 +80,29 @@ export const generateImage = async (name) => {
   await browser.close();
 };
 
-export const writeLog = (queue, erro) => {
-  const pathLog = path.resolve('src', 'log', 'log.txt');
+export const writeLog = (data, name) => {
+  const pathLog = path.resolve('src', 'log', name);
+
+  const newLog = `
+    E-mail: ${data},
+    Date: ${new Date()},
+    Success: True
+    -------------------------------------\n\n
+  `;
+
+  fs.appendFile(pathLog, newLog, (err) => {
+    console.log(err);
+  });
+};
+
+export const writeNotLog = (queue, erro, name) => {
+  const pathLog = path.resolve('src', 'log', name);
 
   const newLog = `
     Queue: ${queue},
     Erro: ${erro},
     Date: ${new Date()}
+    Success: False
     -------------------------------------\n\n
   `;
 

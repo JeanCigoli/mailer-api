@@ -102,9 +102,10 @@ export const mailValidate = ({
   return { status };
 };
 
-
-export const deleteFiles = ({ template, filenames }) => {
+export const deleteFiles = ({ template, filenames, log }) => {
   let files;
+
+  files.log = log;
 
   if (template || filenames) {
     if (!template) {
@@ -120,5 +121,38 @@ export const deleteFiles = ({ template, filenames }) => {
     }
   }
 
+  console.log(files);
+
   return files;
+};
+
+export const handleLog = () => {
+  const name = `${Date.now()}${Math.floor(Math.random() * 100)}.txt`;
+
+  return name;
+};
+
+export const handlerLogEmail = (from, log) => {
+  const attachments = [];
+
+  const name = from.split(' ');
+
+  const mail = {
+    from: 'Mailer <mailer@primi.com.br>',
+    to: from,
+    subject: 'Registro dos envios de E-mail',
+    template: 'mailer',
+    context: {
+      name: name[0],
+    },
+  };
+
+  attachments.push({
+    filename: log,
+    path: path.resolve('src', 'log', log),
+  });
+
+  mail.attachments = attachments;
+
+  return mail;
 };

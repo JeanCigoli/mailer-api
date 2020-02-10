@@ -1,7 +1,7 @@
 import Bee from 'bee-queue';
 import SendMail from '../app/jobs/SendMail';
 import redisConfig from '../config/redis';
-import { writeLog } from '../app/utils/index';
+import { writeLog, writeNotLog } from '../app/utils/index';
 
 const jobs = [SendMail];
 
@@ -41,12 +41,18 @@ class Queue {
     jobs.forEach((job) => {
       const { bee, handle } = this.queues[job.key];
 
+      bee.on('succeeded', this.handleSuccess);
+
       bee.on('failed', this.handleFailure).process(handle);
     });
   }
 
+  handleSuccess(job){
+    writeLog(job.data, job.data.log);
+  }
+
   handleFailure(job, err) {
-    writeLog(job.queue.name, err.message);
+    writeNotLog(job.queue.name, err.message, job.data.log);
   }
 }
 
