@@ -47,12 +47,14 @@ class Queue {
     });
   }
 
-  handleSuccess(job){
-    writeLog(job.data, job.data.log);
+  handleSuccess(job) {
+    if (!job.data.element.status) {
+      writeLog(job.data, job.data.log);
+    }
   }
 
   handleFailure(job, err) {
-    writeNotLog(job.queue.name, err.message, job.data.log);
+    writeNotLog(job.data, err.message, job.data.log);
   }
 }
 

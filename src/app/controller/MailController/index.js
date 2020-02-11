@@ -4,13 +4,15 @@ import SendEmail from '../../jobs/SendMail';
 import {
   apiResponse, apiErrorResponse,
 } from '../../utils/index';
-import { handlerEmail, mailValidate, deleteFiles, handleLog, handlerLogEmail } from './utils';
+import {
+  handlerEmail, mailValidate, deleteFiles, handleLog, handlerLogEmail,
+} from './utils';
 
 class MailController {
   async send(req, res) {
     let files;
     const {
-      name, template, from, to, subject, filenames, limit, delay_minutes,
+      name, template, from, to, subject, filenames, limit, delay_minutes, email_report,
     } = req.body;
 
     const canSend = mailValidate({
@@ -27,8 +29,8 @@ class MailController {
     }
 
     const nameLog = handleLog();
-
     const dataEmail = handlerEmail(req.body);
+    const dataLogEmail = handlerLogEmail(email_report, nameLog);
 
     let cont = 0;
     let delay = 0;
@@ -53,8 +55,6 @@ class MailController {
           }, delay);
         }
       });
-
-      const dataLogEmail = handlerLogEmail(from, nameLog);
 
       Queue.add(SendEmail.key, {
         log: nameLog,

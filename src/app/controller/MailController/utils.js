@@ -80,14 +80,19 @@ export const mailValidate = ({
   }
 
   if (to) {
-    to = JSON.parse(to);
+    try {
+      to = JSON.parse(to);
 
-    to.forEach((toMail) => {
-      if (!toMail.email || toMail.email === '') {
-        errors.push(['O atributo mail de dentro de to está vazio']);
-        status = false;
-      }
-    });
+      to.forEach((toMail) => {
+        if (!toMail.email || toMail.email === '') {
+          errors.push(['O atributo mail de dentro de to está vazio']);
+          status = false;
+        }
+      });
+    } catch (error) {
+      errors.push(['Objeto json no atributo (to) mal formado']);
+      status = false;
+    }
   }
 
   if (!status) {
@@ -102,18 +107,16 @@ export const mailValidate = ({
   return { status };
 };
 
-export const deleteFiles = ({ template, filenames, log }) => {
-  let files;
-
-  files.log = log;
+export const deleteFiles = ({ template, filenames, nameLog }) => {
+  const files = {};
 
   if (template || filenames) {
     if (!template) {
       if (filenames !== undefined) {
-        files = { attachments: filenames };
+        files.attachments = filenames;
       }
     } else {
-      files = { template };
+      files.template = template;
 
       if (filenames !== undefined) {
         files.attachments = filenames;
@@ -121,7 +124,7 @@ export const deleteFiles = ({ template, filenames, log }) => {
     }
   }
 
-  console.log(files);
+  files.log = nameLog;
 
   return files;
 };

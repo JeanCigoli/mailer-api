@@ -16,7 +16,7 @@ class SendMail {
     if (element.status) {
       setTimeout(() => {
         deleteFiles(element);
-      }, 10000);
+      }, 20000);
     }
   }
 }

@@ -81,13 +81,14 @@ export const generateImage = async (name) => {
 };
 
 export const writeLog = (data, name) => {
-  const pathLog = path.resolve('src', 'log', name);
+  const pathLog = path.join('src', 'log', name);
 
   const newLog = `
-    E-mail: ${data},
-    Date: ${new Date()},
-    Success: True
-    -------------------------------------\n\n
+    Para: ${data.element.to},\r\n
+    Assunto: ${data.element.subject},\r\n
+    Date: ${new Date()},\r\n
+    Enviado com sucesso! \r\n
+    -------------------------------------\r\n\r\n
   `;
 
   fs.appendFile(pathLog, newLog, (err) => {
@@ -95,15 +96,15 @@ export const writeLog = (data, name) => {
   });
 };
 
-export const writeNotLog = (queue, erro, name) => {
-  const pathLog = path.resolve('src', 'log', name);
+export const writeNotLog = (data, erro, name) => {
+  const pathLog = path.join('src', 'log', name);
 
   const newLog = `
-    Queue: ${queue},
-    Erro: ${erro},
-    Date: ${new Date()}
-    Success: False
-    -------------------------------------\n\n
+    Para: ${data.element.to},\r\n
+    Erro: ${erro},\r\n
+    Date: ${new Date()}\r\n
+    Deu falha ao enviar\r\n
+    -------------------------------------\r\n\r\n
   `;
 
   fs.appendFile(pathLog, newLog, (err) => {
