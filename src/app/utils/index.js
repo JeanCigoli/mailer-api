@@ -86,7 +86,7 @@ export const writeLog = (data, name) => {
   const newLog = `
     Para: ${data.element.to},\r\n
     Assunto: ${data.element.subject},\r\n
-    Date: ${new Date()},\r\n
+    Date: ${new Date().toLocaleString('pt-BR')},\r\n
     Enviado com sucesso! \r\n
     -------------------------------------\r\n\r\n
   `;
@@ -102,7 +102,7 @@ export const writeNotLog = (data, erro, name) => {
   const newLog = `
     Para: ${data.element.to},\r\n
     Erro: ${erro},\r\n
-    Date: ${new Date()}\r\n
+    Date: ${new Date().toLocaleString('pt-BR')}\r\n
     Deu falha ao enviar\r\n
     -------------------------------------\r\n\r\n
   `;

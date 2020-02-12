@@ -12,7 +12,7 @@ class MailController {
   async send(req, res) {
     let files;
     const {
-      name, template, from, to, subject, filenames, limit, delay_minutes, email_report,
+      name, template, from, to, subject, filenames, limit, delay_minutes, email_report, delay_init,
     } = req.body;
 
     const canSend = mailValidate({
@@ -33,7 +33,7 @@ class MailController {
     const dataLogEmail = handlerLogEmail(email_report, nameLog);
 
     let cont = 0;
-    let delay = 0;
+    let delay = parseFloat(delay_init);
     const delayMinutes = parseFloat(delay_minutes);
 
     try {
