@@ -146,10 +146,34 @@ class TemplateController {
 
   async render(req, res) {
     const { name } = req.params;
+    let response = null;
 
     const template = path.resolve('src', 'views', 'layouts', name);
 
-    res.render(template);
+    const dataTemplate = await TemplateDao.selectByNameTemplate(name);
+
+    if(dataTemplate[0]){
+      const variables = dataTemplate[0].variables;
+
+      const arrayVariables = variables.split(',');
+
+      const json = {};
+
+      arrayVariables.map(variable => {
+        json[variable] = `{{ ${variable} }}`;
+      })
+      
+      res.render(template, {
+        ...json
+      });
+    } else { 
+      response = apiErrorResponse({
+        message: 'Não foi encontrado o arquivo',
+        errors: ['Não foi encontrado o arquivo'],
+      });
+
+      return res.status(404).json(response);
+    }
   }
 
   async renderImage(req, res) {
