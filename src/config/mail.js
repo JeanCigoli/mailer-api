@@ -1,11 +1,11 @@
 export default {
   pool: true,
-  host: 'mail-ssl.locaweb.com.br',
+  host: '',
   port: 587,
   secure: false,
   requireTLS: false,
   auth: {
-    user: 'selointeligente@primi.com.br',
-    pass: '1nteligente.1010',
+    user: '',
+    pass: '',
   },
 };
