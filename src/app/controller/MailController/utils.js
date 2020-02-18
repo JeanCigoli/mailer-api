@@ -64,7 +64,7 @@ export const handlerEmail = (mails) => {
 };
 
 export const mailValidate = ({
-  name, template, from, to, subject,
+  name, template, from, to, subject, limit, delay_minutes, email_report, delay_init,
 }) => {
   const errors = [];
   let status = true;
@@ -76,6 +76,16 @@ export const mailValidate = ({
 
   if (!from || !to || !subject) {
     errors.push(['É necessário mandar os atributos obrigatórios: from, to e subject']);
+    status = false;
+  }
+
+  if (!limit || !delay_minutes || !delay_init) {
+    errors.push(['É necessário mandar os atributos obrigatórios: delay_init, delay_minutes e limit']);
+    status = false;
+  }
+
+  if (!email_report) {
+    errors.push(['É necessário mandar os atributos obrigatórios: email_report']);
     status = false;
   }
 

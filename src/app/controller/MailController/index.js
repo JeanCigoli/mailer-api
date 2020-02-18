@@ -16,7 +16,7 @@ class MailController {
     } = req.body;
 
     const canSend = mailValidate({
-      name, template, from, to, subject,
+      name, template, from, to, subject, limit, delay_minutes, email_report, delay_init,
     });
 
     if (!canSend.status) {

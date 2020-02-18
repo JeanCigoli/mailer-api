@@ -5,7 +5,6 @@ import { upload } from './app/middleware/upload';
 
 const routes = new Router();
 
-
 routes.post('/templates', upload.fields([{ name: 'page', maxCount: 1 }]), TemplateController.store);
 
 routes.get('/templates', TemplateController.index);

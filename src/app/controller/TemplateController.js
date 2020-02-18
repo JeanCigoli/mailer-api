@@ -152,34 +152,44 @@ class TemplateController {
 
     const dataTemplate = await TemplateDao.selectByNameTemplate(name);
 
-    if(dataTemplate[0]){
-      const variables = dataTemplate[0].variables;
+    if (dataTemplate[0]) {
+      const { variables } = dataTemplate[0];
 
       const arrayVariables = variables.split(',');
 
       const json = {};
 
-      arrayVariables.map(variable => {
+      arrayVariables.map((variable) => {
         json[variable] = `{{ ${variable} }}`;
-      })
-      
-      res.render(template, {
-        ...json
-      });
-    } else { 
-      response = apiErrorResponse({
-        message: 'Não foi encontrado o arquivo',
-        errors: ['Não foi encontrado o arquivo'],
       });
 
-      return res.status(404).json(response);
+      return res.render(template, json);
     }
+
+    response = apiErrorResponse({
+      message: 'Não foi encontrado o arquivo',
+      errors: ['Não foi encontrado o arquivo'],
+    });
+
+    return res.status(404).json(response);
   }
 
   async renderImage(req, res) {
     const { name } = req.params;
+    let response;
 
-    res.sendFile(path.resolve('src', 'views', 'layouts', 'assets', name));
+    const file = path.resolve('src', 'views', 'layouts', 'assets', name);
+
+    return res.sendFile(file, (err) => {
+      if (err) {
+        response = apiErrorResponse({
+          message: 'Não foi encontrado o arquivo',
+          errors: ['Não foi encontrado o arquivo'],
+        });
+
+        return res.status(404).json(response);
+      }
+    });
   }
 }
 
