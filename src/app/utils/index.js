@@ -3,7 +3,6 @@ import fs from 'fs';
 import { promisify } from 'util';
 import puppeteer from 'puppeteer';
 
-
 // Retorno da api
 export function apiResponse({
   success = true, message = '', payload = {}, errors = [],
@@ -26,13 +25,11 @@ export function apiErrorResponse({ message = '', errors = [] }) {
 }
 
 // Verificações
-
 export const isNumber = (number) => /^[0-9]+$/.test(number);
-
 export const nameValid = (string) => /[a-zA-Z0-9_]+.hbs/.test(string);
 
-// Deletando arquivos
 
+// Deletando arquivos
 const asyncUnlink = promisify(fs.unlink);
 
 export const deleteFiles = (files) => {
@@ -60,6 +57,7 @@ export const deleteFiles = (files) => {
   }
 };
 
+
 export const generateImage = async (name) => {
   const file = path.join('src', 'views', 'layouts', name);
   const pathDir = path.join('src', 'views', 'layouts', 'assets');
@@ -80,6 +78,7 @@ export const generateImage = async (name) => {
   await browser.close();
 };
 
+
 export const writeLog = (data, name) => {
   const pathLog = path.join('src', 'log', name);
 
@@ -92,7 +91,9 @@ export const writeLog = (data, name) => {
   `;
 
   fs.appendFile(pathLog, newLog, (err) => {
-    console.log(err);
+    if (err) {
+      console.log(err);
+    }
   });
 };
 
@@ -108,6 +109,8 @@ export const writeNotLog = (data, erro, name) => {
   `;
 
   fs.appendFile(pathLog, newLog, (err) => {
-    console.log(err);
+    if (err) {
+      console.log(err);
+    }
   });
 };
