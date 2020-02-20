@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 import {
-  apiResponse, apiErrorResponse, isNumber, nameValid,
+  apiResponse, apiErrorResponse, isNumber, nameValid, generateImage,
 } from '../utils/index';
 import TemplateDao from '../dao/TemplateDao';
 
@@ -26,6 +26,8 @@ class TemplateController {
 
     if (!templateExist) {
       const payload = await TemplateDao.insertTemplate({ name, variables });
+
+      await generateImage(name);
 
       response = apiResponse({
         message: 'Arquivo cadastrado com sucesso',
@@ -120,10 +122,12 @@ class TemplateController {
 
     const { name } = dataTemplate[0];
     const fileName = path.join('src', 'views', 'layouts', name);
+    const assetsName = path.join('src', 'views', 'layouts', 'assets', `${name}.png`);
 
     try {
       await TemplateDao.deleteByTemplate(name);
       await asyncUnlink(fileName);
+      await asyncUnlink(assetsName);
 
       response = apiResponse({
         message: 'Template deletado com sucesso',
@@ -138,6 +142,54 @@ class TemplateController {
 
       return res.status(404).json(response);
     }
+  }
+
+  async render(req, res) {
+    const { name } = req.params;
+    let response = null;
+
+    const template = path.resolve('src', 'views', 'layouts', name);
+
+    const dataTemplate = await TemplateDao.selectByNameTemplate(name);
+
+    if (dataTemplate[0]) {
+      const { variables } = dataTemplate[0];
+
+      const arrayVariables = variables.split(',');
+
+      const json = {};
+
+      arrayVariables.map((variable) => {
+        json[variable] = `{{ ${variable} }}`;
+      });
+
+      return res.render(template, json);
+    }
+
+    response = apiErrorResponse({
+      message: 'Não foi encontrado o arquivo',
+      errors: ['Não foi encontrado o arquivo'],
+    });
+
+    return res.status(404).json(response);
+  }
+
+  async renderImage(req, res) {
+    const { name } = req.params;
+    let response;
+
+    const file = path.resolve('src', 'views', 'layouts', 'assets', name);
+
+    return res.sendFile(file, (err) => {
+      if (err) {
+        response = apiErrorResponse({
+          message: 'Não foi encontrado o arquivo',
+          errors: ['Não foi encontrado o arquivo'],
+        });
+
+        return res.status(404).json(response);
+      }
+    });
   }
 }
 

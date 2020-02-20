@@ -1,10 +1,16 @@
+import { config } from 'dotenv';
+
+config();
+
+
 export default {
-  host: 'mail-ssl.locaweb.com.br',
-  port: 587,
+  pool: true,
+  host: process.env.MAIL_HOST,
+  port: process.env.MAIL_PORT,
   secure: false,
   requireTLS: false,
   auth: {
-    user: 'selointeligente@primi.com.br',
-    pass: '1nteligente.1010',
+    user: process.env.MAIL_AUTH_USER,
+    pass: process.env.MAIL_AUTH_PASS,
   },
 };

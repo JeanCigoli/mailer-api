@@ -1,5 +1,5 @@
+import { config } from 'dotenv';
 import app from './app';
 
-app.listen(3000, () => {
-  console.log('Estou na porta 3000');
-});
+config();
+app.listen(process.env.PORT);

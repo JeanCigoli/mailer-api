@@ -64,7 +64,7 @@ export const handlerEmail = (mails) => {
 };
 
 export const mailValidate = ({
-  name, template, from, to, subject,
+  name, template, from, to, subject, limit, delay_minutes, email_report, delay_init,
 }) => {
   const errors = [];
   let status = true;
@@ -79,15 +79,30 @@ export const mailValidate = ({
     status = false;
   }
 
-  if (to) {
-    to = JSON.parse(to);
+  if (!limit || !delay_minutes || !delay_init) {
+    errors.push(['É necessário mandar os atributos obrigatórios: delay_init, delay_minutes e limit']);
+    status = false;
+  }
 
-    to.forEach((toMail) => {
-      if (!toMail.email || toMail.email === '') {
-        errors.push(['O atributo mail de dentro de to está vazio']);
-        status = false;
-      }
-    });
+  if (!email_report) {
+    errors.push(['É necessário mandar os atributos obrigatórios: email_report']);
+    status = false;
+  }
+
+  if (to) {
+    try {
+      to = JSON.parse(to);
+
+      to.forEach((toMail) => {
+        if (!toMail.email || toMail.email === '') {
+          errors.push(['O atributo mail de dentro de to está vazio']);
+          status = false;
+        }
+      });
+    } catch (error) {
+      errors.push(['Objeto json no atributo (to) mal formado']);
+      status = false;
+    }
   }
 
   if (!status) {
@@ -102,17 +117,16 @@ export const mailValidate = ({
   return { status };
 };
 
-
-export const deleteFiles = ({ template, filenames }) => {
-  let files;
+export const deleteFiles = ({ template, filenames, nameLog }) => {
+  const files = {};
 
   if (template || filenames) {
     if (!template) {
       if (filenames !== undefined) {
-        files = { attachments: filenames };
+        files.attachments = filenames;
       }
     } else {
-      files = { template };
+      files.template = template;
 
       if (filenames !== undefined) {
         files.attachments = filenames;
@@ -120,5 +134,38 @@ export const deleteFiles = ({ template, filenames }) => {
     }
   }
 
+  files.log = nameLog;
+
   return files;
+};
+
+export const handleLog = () => {
+  const name = `${Date.now()}${Math.floor(Math.random() * 100)}.txt`;
+
+  return name;
+};
+
+export const handlerLogEmail = (from, log) => {
+  const attachments = [];
+
+  const name = from.split(' ');
+
+  const mail = {
+    from: 'Mailer <mailer@primi.com.br>',
+    to: from,
+    subject: 'Registro dos envios de E-mail',
+    template: 'mailer',
+    context: {
+      name: name[0],
+    },
+  };
+
+  attachments.push({
+    filename: log,
+    path: path.resolve('src', 'log', log),
+  });
+
+  mail.attachments = attachments;
+
+  return mail;
 };

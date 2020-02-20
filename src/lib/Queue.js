@@ -1,6 +1,7 @@
 import Bee from 'bee-queue';
 import SendMail from '../app/jobs/SendMail';
 import redisConfig from '../config/redis';
+import { writeLog, writeNotLog } from '../app/utils/index';
 
 const jobs = [SendMail];
 
@@ -9,17 +10,6 @@ class Queue {
     this.queues = {};
 
     this.init();
-
-    const TIMEOUT = 30 * 1000;
-
-    process.on('uncaughtException', async () => {
-      try {
-        await this.queues.close(TIMEOUT);
-      } catch (err) {
-        console.error('bee-queue failed to shut down gracefully', err);
-      }
-      process.exit(1);
-    });
   }
 
   init() {
@@ -29,26 +19,42 @@ class Queue {
           redis: redisConfig,
           isWorker: true,
           removeOnSuccess: true,
+          activateDelayedJobs: true,
         }),
         handle,
       };
     });
   }
 
-  add(queue, job) {
-    return this.queues[queue].bee.createJob(job).retries(2).save();
+  add(queue, job, delay) {
+    const delayHour = new Date();
+
+    delayHour.setMinutes(delayHour.getMinutes() + delay);
+
+    return this.queues[queue].bee.createJob(job)
+      .retries(2)
+      .delayUntil(delayHour)
+      .save();
   }
 
   processQueue() {
     jobs.forEach((job) => {
       const { bee, handle } = this.queues[job.key];
 
+      bee.on('succeeded', this.handleSuccess);
+
       bee.on('failed', this.handleFailure).process(handle);
     });
   }
 
+  handleSuccess(job) {
+    if (!job.data.element.status) {
+      writeLog(job.data, job.data.log);
+    }
+  }
+
   handleFailure(job, err) {
-    console.log(`Queue ${job.queue.name}: FAILED `, err);
+    writeNotLog(job.data, err.message, job.data.log);
   }
 }
 
