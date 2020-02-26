@@ -1,0 +1,8 @@
+version: "3.3"
+services:
+  app:
+    build: .
+    container_name: mailer
+    command: bash -c "yarn && yarn sucrase ./src -d ./src --transforms imports && yarn start"
+    ports:
+      - "3005:3005"

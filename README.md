@@ -1,4 +1,3 @@
-
 # Mailer - Api de envio de e-mail
 
 ## Estrutura de pastas
@@ -180,12 +179,8 @@ Segue exemplo:
 
 "variables": [
     {
-        "key": "funcionario",
-        "value": "Jean Cigoli"
-    },
-    {
-        "key": "chefe",
-        "value": "Gabriel"
+        "funcionario": "Jean Cigoli",
+        "chefe": "Gabriel"
     }
 ]
 
@@ -201,12 +196,8 @@ Segue o exemplo do atributo **To** completo:
         "mail": "Jean <jean@primi.com.br>",
         "variables": [
             {
-                "key": "funcionario",
-                "value": "Jean Cigoli"
-            },
-            {
-                "key": "chefe",
-                "value": "Gabriel"
+                "funcionario": "Jean Cigoli",
+                "chefe": "Gabriel"
             }
         ]
     },
@@ -214,12 +205,8 @@ Segue o exemplo do atributo **To** completo:
         "mail": "Micael <micaelpereira@primi.com.br>",
         "variables": [
             {
-                "key": "funcionario",
-                "value": "Micael Pereira"
-            },
-            {
-                "key": "chefe",
-                "value": "Gabriel"
+                "funcionario": "Jean Cigoli",
+                "chefe": "Gabriel"
             }
         ]
     }
