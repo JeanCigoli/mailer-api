@@ -1,0 +1,10 @@
+.git 
+.cache
+docker-*
+.gitignore
+.eslintrc.*
+.env.*
+.editorconfig
+*.md
+.dockerignore
+Dockerfile
