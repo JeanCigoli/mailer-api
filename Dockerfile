@@ -1,4 +1,4 @@
 FROM node
-LABEL MAINTAINER="Hackerman <lucas.santos@primi.com.br>"
+LABEL MAINTAINER="Jean <jeancigoli30@gmail.com>"
 WORKDIR /app
 COPY . .
