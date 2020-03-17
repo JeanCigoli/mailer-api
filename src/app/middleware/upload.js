@@ -30,6 +30,8 @@ const storage = multer.diskStorage({
 
       callback(null, `${file.originalname}`);
     } else {
+
+      req.body.page = file.originalname;
       callback(null, `${file.originalname}`);
     }
   },

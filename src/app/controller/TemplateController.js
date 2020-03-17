@@ -10,8 +10,17 @@ const asyncUnlink = promisify(fs.unlink);
 
 class TemplateController {
   async store(req, res) {
-    const { name, variables } = req.body;
+    const { name, variables, page } = req.body;
     let response = null;
+
+    if (name === page) {
+      response = apiErrorResponse({
+        message: 'O parâmetro name tem ser igual ao nome do arquivo (page)',
+        errors: ['Parâmetro enviado é inválido'],
+      });
+
+      return res.status(404).json(response);
+    }
 
     if (!nameValid(name)) {
       response = apiErrorResponse({
